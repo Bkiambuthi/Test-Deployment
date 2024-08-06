@@ -1,12 +1,11 @@
 import streamlit as st
-from PIL import Image
 import numpy as np
-import pickle
+from PIL import Image
+import tensorflow as tf
 
-# Load the pickled model
+# Load the TensorFlow model
 try:
-    with open('model.pkl', 'rb') as f:
-        model = pickle.load(f)
+    model = tf.keras.models.load_model('model.h5')
 except Exception as e:
     st.error(f'Error loading model: {e}')
     raise
