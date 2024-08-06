@@ -1,37 +1,38 @@
 import streamlit as st
-import numpy as np
 from PIL import Image
+import numpy as np
 import pickle
 
 # Load the pickled model
-with open('model.pkl', 'rb') as f:
-    model = pickle.load(f)
+try:
+    with open('model.pkl', 'rb') as f:
+        model = pickle.load(f)
+except Exception as e:
+    st.error(f'Error loading model: {e}')
+    raise
 
 # Function to preprocess the image and make predictions
 def predict(image, model):
-    # Preprocess the image to the format the model expects
-    image = image.resize((128, 128))  # Adjust size as needed
-    image = np.array(image)
-    image = image / 255.0  # Normalize to [0, 1] range if necessary
-    image = image.reshape((1, 128, 128, 3))  # Reshape to (1, 128, 128, 3)
-    
-    # Make a prediction
+    image = image.resize((128, 128))  # Resize to the size your model expects
+    image = np.array(image) / 255.0  # Normalize the image
+    image = image.reshape((1, 128, 128, 3))  # Reshape to add batch dimension
     prediction = model.predict(image)
-    return prediction
+    class_names = ['Arborio', 'Basmati', 'Ipsala', 'Jasmine', 'Karacadag']
+    return class_names[np.argmax(prediction)]
 
-# Streamlit app
-st.title("Image Classifier")
+st.title('Rice Image Classification')
 
-uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg"])
+uploaded_file = st.file_uploader("Choose an image...", type="jpg")
 
 if uploaded_file is not None:
-    image = Image.open(uploaded_file)
-    st.image(image, caption='Uploaded Image.', use_column_width=True)
-    st.write("")
-    st.write("Classifying...")
-
     try:
-        prediction = predict(image, model)
-        st.write(f'Prediction: {prediction[0]}')
+        image = Image.open(uploaded_file)
+        st.image(image, caption='Uploaded Image.', use_column_width=True)
+        st.write("")
+        st.write("Classifying...")
+
+        # Make prediction
+        predicted_class = predict(image, model)
+        st.write(f'Predicted class: {predicted_class}')
     except Exception as e:
-        st.write(f"Error: {e}")
+        st.error(f'Error during prediction: {e}')
