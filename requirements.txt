@@ -6,8 +6,4 @@ opencv-python
 pillow
 scipy
 matplotlib
-streamlit==1.22.0
-pillow==10.0.0
-numpy==1.24.3
-scikit-learn==1.2.2
-tensorflow==2.13.0
+streamlit
